@@ -1,0 +1,1 @@
+NMR8K dataset sampled from the NMRShiftDB database. There are eight thousand molecules included in the NMR8K dataset. Each molecule associates with a 'mrshiftdb2 ID', corresponding to the id in the NMRShiftDB database. Experimental observed chemical shift for C/H are assigned to each atom in the 'Spectrum' session. 
