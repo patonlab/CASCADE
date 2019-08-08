@@ -1,5 +1,9 @@
-# NMR chemical shift predictions using graph network
-This repositary contains all codes and data required to reproduce the work in Real-time NMR chemical shift precitions using graph convolutional network.
+![CASCADE](cascade_banner.png)
+===
+# CASCADE: ChemicAl Shift CAlculation with Deep lEarning 
+
+This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network.
+
 ## Requirements
 ### Automatic database2database workflow for QM chemical shift calculations
 The code can be found in code/NMR8K_to_DFT8K.
