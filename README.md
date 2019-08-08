@@ -1,6 +1,6 @@
 ![CASCADE](cascadebanner.png)
 ===
-# CASCADE: ChemicAl Shift CAlculation with Deep lEarning 
+# ChemicAl Shift CAlculation with Deep lEarning 
 
 This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network.
 
