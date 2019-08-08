@@ -1,4 +1,4 @@
-![CASCADE](cascade_banner.png)
+![CASCADE](cascadebanner.png)
 ===
 # CASCADE: ChemicAl Shift CAlculation with Deep lEarning 
 
