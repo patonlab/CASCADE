@@ -4,6 +4,15 @@
 
 This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network.
 
+# CASCADE: What is it?
+
+CASCADE is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. Molecular input can be specified as SMILES or through the graphical interface. An automated workflow executes 3D structure embedding and MMFF conformer searching. The full ensemble of optimized conformations are passed to a trained graph neural network to predict the NMR chemical shift (in ppm) for each C atom.
+
+The graph Network considers each atom as a node in a molecular graph that permits communication between atoms - this is through edges connecting atom pairs. Each molecule is represented by a 3D molecular graph, in which each pair of atoms are connected by a distance (i.e., as opposed to solely representing bonds in a 2D molecular graph). The archeticture of the network used is shown below.
+
+We evaluated the performance of three neural network models. The first model, DFTNN, takes DFT optimized structures as input and was trained against DFT calculated shielding tensors. The MAE for the 500 testing molecules is 1.26 ppm compared to  mPW1PW91/6-311+G(d,p) DFT calculations. The second model, ExpNN-dft, which was trained against experimental chemical shifts using DFT optimized structures as input through transfer learning achieves a MAE of 1.25 ppm for the 500 testing molecules compared to experimental observed chemical shifts. The eventual model, Expnn-ff, which serves as the backend predictor for this web app takes MMFF optimized structures as input and predict experimental chemical shift. The performance of the eventual model on the testing molecules is 1.43 ppm compared to the experimental 13C chemical shifts. The Scatter plot and histogram show the correlation between predicted and experimental chemical shift are shown below.
+
+
 ## Requirements
 ### Automatic database2database workflow for QM chemical shift calculations
 The code can be found in code/NMR8K_to_DFT8K.
@@ -46,5 +55,7 @@ The Fig7_nprod folder contains data for the large molecules with MW > 500 found 
 
 ## Web app
 The ExpNN-ff model which predict experimental chemical shifts using a MMFF 3D structure was developed into a free access web app (CASCADE: http://nova.chem.colostate.edu/cascade/) to fullfill the daily usage of real-time C13 chemical shift predictions that is based on 3D structures and thus can systemitically consider stereochemistry and conformers. 
+
+
 
 If you have any questions please open an issue here or contact us at yanfei.guan@colostate.edu or robert.paton@colostate.edu.
