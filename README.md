@@ -2,7 +2,7 @@
 ===
 # ChemicAl Shift CAlculation with DEep learning 
 
-This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network.
+This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network. The production webserver can be found here: http://nova.chem.colostate.edu/cascade/
 
 # CASCADE: What is it?
 
