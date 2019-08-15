@@ -10,8 +10,8 @@ CASCADE is a stereochemically-aware online calculator for NMR chemical shifts us
 
 The graph Network considers each atom as a node in a molecular graph that permits communication between atoms - this is through edges connecting atom pairs. Each molecule is represented by a 3D molecular graph, in which each pair of atoms are connected by a distance (i.e., as opposed to solely representing bonds in a 2D molecular graph). The architecture of the network used is shown below.
 
-<span style="display:block;text-align:center">!
- ![GRAPH NETWORK ARCHITECTURE](graph_network.png)
+<span style="display:block;text-align:center">
+ [GRAPH NETWORK ARCHITECTURE](graph_network.png)
 </span>
  
 We evaluated the performance of three neural network models. The first model, DFTNN, takes DFT optimized structures as input and was trained against DFT calculated shielding tensors. The MAE for the 500 testing molecules is 1.26 ppm compared to  mPW1PW91/6-311+G(d,p) DFT calculations. The second model, ExpNN-dft, which was trained against experimental chemical shifts using DFT optimized structures as input through transfer learning achieves a MAE of 1.25 ppm for the 500 testing molecules compared to experimental observed chemical shifts. The eventual model, Expnn-ff, which serves as the backend predictor for this web app takes MMFF optimized structures as input and predict experimental chemical shift. The performance of the eventual model on the testing molecules is 1.43 ppm compared to the experimental 13C chemical shifts. The Scatter plot and histogram show the correlation between predicted and experimental chemical shift are shown below.
