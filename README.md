@@ -16,7 +16,9 @@ The graph Network considers each atom as a node in a molecular graph that permit
  
 We evaluated the performance of three neural network models. The first model, DFTNN, takes DFT optimized structures as input and was trained against DFT calculated shielding tensors. The MAE for the 500 testing molecules is 1.26 ppm compared to  mPW1PW91/6-311+G(d,p) DFT calculations. The second model, ExpNN-dft, which was trained against experimental chemical shifts using DFT optimized structures as input through transfer learning achieves a MAE of 1.25 ppm for the 500 testing molecules compared to experimental observed chemical shifts. The eventual model, Expnn-ff, which serves as the backend predictor for this web app takes MMFF optimized structures as input and predict experimental chemical shift. The performance of the eventual model on the testing molecules is 1.43 ppm compared to the experimental 13C chemical shifts. The Scatter plot and histogram show the correlation between predicted and experimental chemical shift are shown below.
 
-![CASCADE PERFORMANCE](performance.png) {.center}
+<p align="center">
+  <img src="performance.png">
+</p>
 
 ## Requirements
 ### Automatic database2database workflow for QM chemical shift calculations
