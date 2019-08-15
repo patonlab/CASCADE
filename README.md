@@ -1,12 +1,12 @@
 ![CASCADE](cascadebanner.png)
 ===
-# ChemicAl Shift CAlculation with Deep lEarning 
+# ChemicAl Shift CAlculation with DEep learning 
 
 This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network.
 
 # CASCADE: What is it?
 
-CASCADE is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. Molecular input can be specified as SMILES or through the graphical interface. An automated workflow executes 3D structure embedding and MMFF conformer searching. The full ensemble of optimized conformations are passed to a trained graph neural network to predict the NMR chemical shift (in ppm) for each C atom.
+**CASCADE** stands for **C**hemic**A**l **S**hift **CA**lculation with **DE**ep learning. It is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. Molecular input can be specified as SMILES or through the graphical interface. An automated workflow executes 3D structure embedding and MMFF conformer searching. The full ensemble of optimized conformations are passed to a trained graph neural network to predict the NMR chemical shift (in ppm) for each C atom.
 
 The graph Network considers each atom as a node in a molecular graph that permits communication between atoms - this is through edges connecting atom pairs. Each molecule is represented by a 3D molecular graph, in which each pair of atoms are connected by a distance (i.e., as opposed to solely representing bonds in a 2D molecular graph). The architecture of the network used is shown below.
 
