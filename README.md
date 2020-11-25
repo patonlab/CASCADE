@@ -67,4 +67,4 @@ The ExpNN-ff model which predict experimental chemical shifts using a MMFF 3D st
 
 
 
-If you have any questions please open an issue here or contact us at yanfei.guan@colostate.edu or robert.paton@colostate.edu.
+If you have any questions please open an issue here or contact us at patonlab@colostate.edu.
