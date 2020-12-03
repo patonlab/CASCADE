@@ -26,6 +26,7 @@ with gzip.open('../../../../data/Exp5K/FF.sdf.gz', 'r') as sdfile:
             mols += [(int(mol.GetProp('_Name')), mol, mol.GetNumAtoms())]
 
 mols = pd.DataFrame(mols, columns=['mol_id', 'Mol', 'n_atoms'])
+mols = mols[~mols.mol_id.duplicated()]
 mols = mols.set_index('mol_id', drop=True)
 
 df = pd.read_csv('../../../../data/Exp5K/Exp5K.csv.gz', index_col=0)

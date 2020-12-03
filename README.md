@@ -43,7 +43,7 @@ The code and trained model can be found in code/predicting_model
 
 To train the neural network model, it requires the following:
 1. Tensorflow 1.12.0 (CPU)/Tensorflow-gpu 1.12.0 (GPU)
-2. Keras 2.2.4
+2. Keras 2.2.5
 3. Pandas
 4. Rdkit
 5. scikit-learn
