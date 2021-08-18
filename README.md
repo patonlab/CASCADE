@@ -6,6 +6,8 @@
 
 This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network. The production webserver can be found here: http://nova.chem.colostate.edu/cascade/
 
+For all work using CASCADE please cite the primary publication: Guan, Y.; Sowndarya, S. V. S.; Gallegos, L. C.; St. John P. C.; Paton, R. S. *Chem. Sci.* **2021**, [**DOI:** 10.1039/D1SC03343C](https://doi.org/10.1039/D1SC03343C)
+
 # CASCADE: What is it?
 
 **CASCADE** stands for **C**hemic**A**l **S**hift **CA**lculation with **DE**ep learning. It is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. Molecular input can be specified as SMILES or through the graphical interface. An automated workflow executes 3D structure embedding and MMFF conformer searching. The full ensemble of optimized conformations are passed to a trained graph neural network to predict the NMR chemical shift (in ppm) for each C atom.
