@@ -1,0 +1,36 @@
+{% extends "cascade/base.html" %}
+{% block content %}
+<div class="col-md-8">
+  <h1>Welcome to <span style="color: #FF5733">CASCADE</span>-<span style="color: #FF5733">C</span>hemic<span style="color: #FF5733">A</span>l <span style="color: #FF5733">S</span>hift <span style="color: #FF5733">CA</span>lculator using <span style="color: #FF5733">DE</span>ep <span style="color: #FF5733"></span>Learning</h1>
+  <p>on Jul 3, 2019</p>
+  <p align="justify">CASCADE is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. This provides chemical shift predictions trained to achieve DFT-levels of accuracy within seconds: the average error against 5,100 testing experimental shifts is 1.43 ppm for <sup>13</sup>C. The CASCADE methodology, training data used, and typical performance statistics are all described in the following publication: XXX. The underlying code and training data are also made available through <a href="https://github.com/bobbypaton/CASCADE">GitHub</a></p>
+
+  <p align="justify">The current online release is limited to the prediction of C13 chemical shifts. Query structures can be input via graphical interface or SMILES input. This launches 3D-structure generation, conformational search, and a prediction of chemical shifts for the Boltzmann-weighted ensemble. More features are under development. Use the Predict tab to explore more.
+
+  <p align="justify">This website is currently being tested internally. Stay tuned for more updates!
+  <br><br>
+  <h1><span style="color: #FF5733">CASCADE</span> is open to the world! <i class="fas fa-glass-cheers"></i><i class="fas fa-glass-cheers"></i><i class="fas fa-glass-cheers"></i></h1>
+  <p align="justify">on Jul 19, 2019</p>
+  <p align="justify">CASCADE is now open and being tested worldwide. Please feel free to email us any feedback or comment.</p>
+
+  {% for new in news %}
+    <br><br>
+    <h1>{{ new.title }}</h1>
+    <p align="justify">on {{new.date_posted}}</p>
+    <p align="justify">{{ new.content }}</p>
+  {% endfor %}
+</div>
+<div class="col-md-4">
+  <div class="content-section">
+    <h3>Explorer</h3>
+    <p class='text-muted'>More cool stuffs are coming.
+      <ul class="list-group">
+        <li class="list-group-item list-group-item-light">Latest Posts</li>
+        <li class="list-group-item list-group-item-light">Announcements</li>
+        <li class="list-group-item list-group-item-light">Sources</li>
+        <li class="list-group-item list-group-item-light">etc</li>
+      </ul>
+    </p>
+  </div>
+</div>
+{% endblock content %}
