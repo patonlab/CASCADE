@@ -1,0 +1,440 @@
+
+{% extends "cascade/base.html" %}
+{% load static %}
+{% block extendscript %}
+  <link type="text/css" rel="stylesheet" href="{% static 'cascade/js/marvin/lib/rainbow/github.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'cascade/sketch.css' %}">
+
+  <script src="{% static 'cascade/jquery/jquery-3.1.0.js' %}"></script>
+  <script>
+    var jQuery_3_1_0 = $.noConflict(true);
+    var stop_running = false
+  </script>
+
+  <script src="{% static 'cascade/jquery/ajax_csrf.js' %}"></script>
+	<script src="{% static 'cascade/js/marvin/lib/jquery-1.9.1.min.js' %}"></script>
+	<script src="{% static 'cascade/js/marvin/lib/rainbow/rainbow-custom.min.js' %}"></script>
+	<script src="{% static 'cascade/gui/lib/promise-1.0.0.min.js' %}"></script>
+	<script src="{% static 'cascade/gui/gui.nocache.js' %}"></script>
+  <script src="{% static 'cascade/js/marvin/marvinjslauncher.js' %}"></script>
+  <script src="{% static 'cascade/js/marvin/util.js' %}"></script>
+  <script src="{% static 'cascade/js/marvin/webservices.js' %}"></script>
+  <script src="{% static 'cascade/js/JSmol.min.js' %}"></script>
+  <script src="{% static 'cascade/js/Jmol2.js' %}"></script>
+  <script>
+		var marvinSketcherInstance;
+		var buttonAttributes;
+    var srcTextBox;
+    var nnResultsJSmol;
+    var nnResultsShifts;
+    var confNum = 1;
+    var nnResults;
+
+    var Info = {
+      color: "#FFFFFF",
+      height: 425,
+      width: 425,
+      use: "HTML5",
+      j2sPath: "{% static 'cascade/j2s'%}",
+      isSigned: true,
+      serverURL: "{% static 'cascade/php/jsmol.php'%}",
+      disableInitialConsole: true
+    };
+
+    var NNResults = (function() {
+        function NNResults (nnResponse, jsmolWindow, table, confNumtxtBox, energyWindow, label_btn, confTotalNumWindow) {
+            this.nnResponse = nnResponse;
+            this.jsmolWindow = jsmolWindow;
+            this.table = table;
+            this.confNum = 1;
+            this.confNumtxtBox = confNumtxtBox;
+            this.status = 'weighted';
+            this.energyWindow = energyWindow;
+            this.labelStatus = 'On';
+            this.label_btn = label_btn;
+            this.confTotalNumWindow = confTotalNumWindow;
+            this.init();
+        }
+
+        NNResults.prototype.init = function init() {
+          this.nnResultsJsmol = this.nnResponse.jsmol_command.split('!').filter(n => n);
+          this.weightedShift = this.nnResponse.weightedShiftTxt;
+          this.confShift = this.nnResponse.confShiftTxt.split('!').filter(n => n);
+          this.relative_E = this.nnResponse.relative_E.split('!').filter(n => n);
+          this.confTotalNumWindow.innerHTML = "Number of Conformers: "+this.nnResultsJsmol.length;
+
+          this.showJSmol();
+          this.showConfNum();
+          this.showWeightedShift();
+          this.showPlainEnergy();
+        };
+
+        NNResults.prototype.next = function next() {
+
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else if (this.confNum == this.nnResultsJsmol.length) {
+            alert('You have hit the last conformer');
+          } else {
+            this.confNum += 1;
+            this.showJSmol();
+            this.showConfNum();
+            this.showConfShift();
+            this.showEnergy();
+          };
+        };
+
+        NNResults.prototype.previous = function previous() {
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else if (this.confNum == 1) {
+            alert('You are at the the first conformer');
+          } else {
+            this.confNum -= 1;
+            this.showJSmol();
+            this.showConfNum();
+            this.showConfShift();
+            this.showEnergy();
+          }
+        };
+
+        NNResults.prototype.showJSmol = function showJSmol() {
+          Jmol.script(this.jsmolWindow, this.nnResultsJsmol[this.confNum-1]);
+          Jmol.script(this.jsmolWindow, "select Carbon");
+          Jmol.script(this.jsmolWindow, "label %a");
+        };
+
+        NNResults.prototype.showConfNum = function showConfNum() {
+          this.confNumtxtBox.val(this.confNum);
+        }
+
+        NNResults.prototype.goConformer = function goConformer() {
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else {
+            this.confNum = parseInt(this.confNumtxtBox.val(), 10);
+            this.showJSmol();
+            this.showEnergy();
+            this.showConfShift();
+            this.showEnergy();
+          }
+        }
+
+        NNResults.prototype.showWeightedShift = function showWeightedShift() {
+          this.showShift(this.weightedShift);
+        }
+
+        NNResults.prototype.showConfShift = function showConfShift() {
+          this.showShift(this.confShift[this.confNum-1]);
+        }
+
+        NNResults.prototype.showWeighted = function showWeighted() {
+          Jmol.script(this.jsmolWindow, this.nnResultsJsmol[0]);
+          Jmol.script(this.jsmolWindow, "select Carbon");
+          Jmol.script(this.jsmolWindow, "label %a");
+          this.confNumtxtBox.val(1);
+          this.showWeightedShift();
+          this.status = 'weighted';
+          this.showPlainEnergy();
+        }
+
+        NNResults.prototype.showConformers = function showConformers() {
+          this.status = 'conformers';
+          this.showJSmol();
+          this.showConfNum();
+          this.showConfShift();
+          this.showEnergy();
+        }
+
+        NNResults.prototype.showShift = function showShift(shifttxt) {
+
+          new_tbody = document.createElement('tbody');
+
+          var shifts = shifttxt.split(';');
+          shifts = shifts.filter(n => n);
+          for (s of shifts) {
+            shift_temp = s.split(',');
+
+            var row = new_tbody.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+
+            cell1.innerHTML = shift_temp[0];
+            cell2.innerHTML = shift_temp[1];
+          }
+          old_tbody = this.table.tBodies[0];
+          this.table.replaceChild(new_tbody, old_tbody);
+        }
+
+        NNResults.prototype.showEnergy = function showEnergy() {
+          var relativeE = this.relative_E[this.confNum-1].split(',').filter(n => n);
+            this.energyWindow.innerHTML = "Conformer Relative Energy (MMFF): "+relativeE[0]+" kcal/mol<br />Boltzmann Weight: "+relativeE[1];
+        };
+
+        NNResults.prototype.showPlainEnergy = function showPlainEnergy() {
+          this.energyWindow.innerHTML = "Conformer Relative Energy (MMFF):<br />Boltzmann Weight:"
+        };
+
+        NNResults.prototype.controlLabel = function controlLabel() {
+          if (this.labelStatus == 'On') {
+            Jmol.script(this.jsmolWindow, "Label Hide");
+            this.labelStatus = 'Off';
+          }else if (this.labelStatus == 'Off') {
+            Jmol.script(this.jsmolWindow, "Label Display");
+            this.labelStatus = 'On';
+          }
+        }
+
+        return NNResults;
+
+    }());
+
+    $(document).ready(function handleDocumentReady (e) {
+      getMarvinPromise("#sketch").done(function (sketcherInstance) {
+        marvinSketcherInstance = sketcherInstance;
+
+        $("#getSmiles").on("click", function handleGetSmilesButton () {
+          smilesControl.getSmiles();
+        });
+
+        $("#viewSmiles").on("click", function handleGetSmilesButton () {
+          smilesControl.setSmiles();
+        });
+
+        $("#resetButton").on("click", function handleGetSmilesButton () {
+          smilesControl.reset();
+        });
+
+      }).fail(function () {
+        alert("Cannot retrieve sketcher instance from iframe");
+      });
+    });
+
+    var errorConsole = (function () {
+    var controlObject = {
+        "reset" : function() {
+          $("#error").children("p").html("");
+        }
+        ,"print" : function(txt) {
+          $("#error").children("p").html(txt);
+        }
+        ,"isEmpty" : function() {
+          return ($("#error").children("p").html() === "");
+        }
+      };
+
+      return controlObject;
+
+    }());
+
+    var smilesControl = (function () {
+
+			function getMolConvertURL() {
+				var ws = getDefaultServices();
+				return ws['molconvertws'];
+			};
+
+			function handleRequestError (qXHR, textStatus, errorThrown) {
+				if (qXHR.status == 0) { // UNSENT request
+					var errMsg = "ERROR: MolConvert failed.\nThe request has not been sent.\nThe request may violate the cross domain policy.";
+					errorConsole.print(errMsg);
+				} else {
+					errorConsole.print("ERROR: MolConvert failed (status code "+ qXHR.status + ")\n" + qXHR.responseText);
+				}
+			};
+
+			var controlObject = {
+
+				"getSmiles": function getSmiles () {
+					errorConsole.reset();
+					var s = marvinSketcherInstance.exportAsMrv();
+					var	data = JSON.stringify({
+						"structure" : s,
+						"inputFormat" : "mrv",
+						"parameters" : "smiles"
+					});
+
+					jQuery_3_1_0.ajax({
+						"url": getMolConvertURL()
+						,"type": "POST"
+						,"dataType": "json"
+						,"contentType": "application/json"
+						,"data": data
+					}).done(function (data, textStatus, jqXHR) {
+						$("#smiles").val(data['structure']);
+					}).fail(handleRequestError);
+				}
+
+				,"setSmiles": function setSmiles() {
+					errorConsole.reset();
+					var s = $("#smiles").val();
+					if (s == null || s == "") {
+						marvinSketcherInstance.importAsMrv(null);
+					} else {
+						var data = JSON.stringify({
+							"structure" : s,
+							"inputFormat" : "smiles",
+							"parameters" : "mrv"
+						});
+
+						jQuery_3_1_0.ajax({
+							"url": getMolConvertURL()
+							,"type": "POST"
+							,"dataType": "json"
+							,"contentType": "application/json"
+							,"data": data
+						}).done(function (data, textStatus, jqXHR) {
+							marvinSketcherInstance.importAsMrv(data['structure']);
+						}).fail(handleRequestError);
+					}
+				}
+
+				,"reset": function reset () {
+					$("#smiles").val("");
+					errorConsole.reset();
+				}
+			}
+
+			return controlObject;
+
+		}());
+
+	</script>
+{% endblock extendscript%}
+
+{% block content %}
+
+<body>
+  <div class="container">
+    <div class="resizable", style="width: 100%; height=100%">
+      <iframe src="{% url 'sketcher' %}" style="width: 100%; height:100%;" id="sketch"></iframe>
+    </div>
+  </div>
+  <div class="container">
+    <br>
+    <h3>SMILES:</h3>
+    <input type="text" class="form-control" id="smiles" name="smiles" placeholder="Enter a SMILES string or draw a molecule then click submit">
+    <br>
+    <button type="button" id='getSmiles' class="btn btn-success">Get Smiles</button>
+    <button type="button" id='viewSmiles' class="btn btn-success">View Molecule</button>
+    <button type="button" class="btn btn-primary float-right" onclick="SubmitNMR()">Submit</button>
+  </div>
+
+  <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="runningwindow">
+    <div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modal-title">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          </div>
+          <div class="modal-body">
+          <p id="status">Preparing molecules</p>
+          </div>
+          <div class="modal-footer">
+          <button type="button" class="btn btn-primary">Notify me</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="stoprunning()">Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container" id="results">
+  </div>
+
+</body>
+
+<script>
+  function NextConformer() {
+    nnResults.next();
+  };
+
+  function GoConformer() {
+    nnResults.goConformer();
+  };
+
+  function PreviousConformer() {
+    nnResults.previous();
+  }
+
+  function showWeighted() {
+    nnResults.showWeighted();
+  }
+
+  function showConformers() {
+    nnResults.showConformers();
+  }
+
+  function controlLabel() {
+    nnResults.controlLabel();
+  }
+
+  function SubmitNMR() {
+    stop_running = false;
+    var smiles = document.getElementById("smiles").value;
+
+    jQuery_3_1_0.ajax({
+      url: "/cascade/predict_NMR/",
+      type: "POST",
+      async: true,
+      data: {
+        "smiles": smiles,
+      },
+      success: function(nnResponse){
+
+        if (nnResponse.task_id == null) {
+          alert("You must put in a molecule or your molecule is not allowed")
+        } else {
+          $('#runningwindow').on('show.bs.modal', function(event) {
+            var modal = $(this);
+            modal.find('.modal-title').text(smiles);
+          });
+          $('#runningwindow').modal({backdrop: 'static', keyboard: false})
+
+          document.getElementById("status").innerHTML = nnResponse.message;
+          intervalid = 0;
+          function check_status() {
+            jQuery_3_1_0.ajax({
+              url: "/cascade/check_task/",
+              type: "GET",
+              async: true,
+              data: {
+                "task_id": nnResponse.task_id,
+              },
+              success: function(nnResponse){
+                if (nnResponse == 'running') {
+                  document.getElementById("status").innerHTML = "CASCADE will perform a conformational search for your structure. This may take few seconds, depending on the size and number or rotatable bonds."
+                  console.log(stoprunning)
+                  if (stop_running) {
+                    clearInterval(intervalid)
+                  }
+                }else{
+                  document.getElementById("status").innerHTML = "CASCADE: Your calculation is completed!"
+                  clearInterval(intervalid)
+                  $('#runningwindow').modal('hide');
+                  $('#results').html(nnResponse)
+                }
+              }
+            });
+          }
+          intervalid = setInterval(check_status, 200);
+        }
+      }
+
+    });
+  }
+
+  function stoprunning() {
+    stop_running = true;
+  }
+
+
+
+</script>
+
+<!-- Grab smiles from marvinjs, view smiles in marvinjs -->
+<script>
+
+
+</script>
+{% endblock content %}

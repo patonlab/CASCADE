@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.tableFixHead          { overflow-y: auto; height: 425px }
+.tableFixHead thead th { position: sticky; top: 0; }
+
+th     { background:#eee; }
+</style>
+
+<br>
+<h3>Results:</h3>
+<div class="container4">
+  <div class="resizable", style="width:100%; height=100%">
+    {{ svg|safe }}
+  </div>
+  <br><br>
+</div>
+<div class="col text-center">
+      <button class="btn btn-success" data-toggle="modal" data-target="#conformers" onclick="showconformers()">View Conformers</button>
+      <a href="{% url 'download' taskId=taskId %}" class="btn btn-success"><i class="fa fa-download"></i> Download</a>
+      <br><br>
+</div>
+
+<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" id="conformers">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-title">Conformers</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+      <div class="modal-body" style="height:460px">
+        <div class="container">
+          <div class="row">
+            <div class="col-8" id="jsmolwindow">
+            </div>
+            <div class="col tableFixHead">
+              <table class="table" id="ShiftTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Shift</th>
+                  </tr>
+                </thead>
+                <tbody>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="container">
+          <div class="row">
+            <div class="col-6">
+              <div class="text-center">
+                <button onclick="PreviousConformer()" class='btn btn-success align-baseline'>&laquo; Previous</button>
+                <textarea name="name" id="confNumtxtBox" rows=1 cols=3 class="num-inputer align-middle"></textarea>
+                <button onclick="GoConformer()" class='btn btn-success align-baseline'>Go</button>
+                <button onclick="NextConformer()" class='btn btn-success align-baseline'>Next &raquo;</button>
+              </div>
+              <br>
+              <div class="text-center">
+                <button type="button" class="btn btn-info" onclick="presentConformers()">Confs</button>
+                <button type="button" class="btn btn-info" onclick="showWeighted()">Weighted</button>
+                <button type="button" class="btn btn-info" onclick="controlLabel()">Label</button>
+              </div>
+            </div>
+            <div class="col-6">
+              <p id="confTotalNum">Number of Conformers:</p>
+              <p id="relative_E">Conformer Relative Energy (kcal/mol):<br />Boltzmann Weight:</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  var nnResults;
+  var JSmolInfo = {
+    color: "#FFFFFF",
+    height: 425,
+    width: 425,
+    use: "HTML5",
+    j2sPath: "{% static 'cascade/j2s'%}",
+    isSigned: true,
+    serverURL: "{% static 'cascade/php/jsmol.php'%}",
+    disableInitialConsole: true
+  };
+
+  function showconformers() {
+    $("#jsmolwindow").html(Jmol.getAppletHtml("conformerwindow", Info));
+    $('#conformers').modal({backdrop: 'static', keyboard: false});
+    nnResults = new NNResults(
+      "{{jsmol_command}}",
+      "{{weightedShift}}",
+      "{{confShift}}",
+      "{{relative_E}}",
+      conformerwindow,
+      document.getElementById("ShiftTable"),
+      $("#confNumtxtBox"),
+      document.getElementById("relative_E"),
+      document.getElementById("label_btn"),
+      document.getElementById("confTotalNum"),
+    );
+  }
+
+  var NNResults = (function() {
+        function NNResults (jsmol_command, weightedShift, confShift, relative_E, jsmolWindow, table, confNumtxtBox, energyWindow, label_btn, confTotalNumWindow) {
+            this.jsmol_command = jsmol_command;
+            this.weightedShift = weightedShift;
+            this.confShift = confShift;
+            this.relative_E = relative_E;
+            this.jsmolWindow = jsmolWindow;
+            this.table = table;
+            this.confNum = 1;
+            this.confNumtxtBox = confNumtxtBox;
+            this.status = 'weighted';
+            this.energyWindow = energyWindow;
+            this.labelStatus = 'On';
+            this.label_btn = label_btn;
+            this.confTotalNumWindow = confTotalNumWindow;
+            this.init();
+        }
+
+        NNResults.prototype.init = function init() {
+          this.nnResultsJsmol = this.jsmol_command.split('!').filter(n => n);
+          this.confShift = this.confShift.split('!').filter(n => n);
+          this.relative_E = this.relative_E.split('!').filter(n => n);
+          this.confTotalNumWindow.innerHTML = "Number of Conformers: "+this.nnResultsJsmol.length;
+
+          var shifts = this.weightedShift.split(';');
+          shifts = shifts.filter(n => n);
+
+          //delete all rows
+          var rowCount = this.table.rows.length;
+          for (var i = rowCount - 1; i > 0; i--) {
+              this.table.deleteRow(i);
+          }
+
+          for (s of shifts) {
+            shift_temp = s.split(',');
+
+            var row = this.table.insertRow(-1);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+
+            cell1.innerHTML = shift_temp[0];
+            cell2.innerHTML = shift_temp[1];
+          }
+
+          this.showJSmol();
+          this.showConfNum();
+          this.showPlainEnergy();
+        };
+
+        NNResults.prototype.next = function next() {
+
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else if (this.confNum == this.nnResultsJsmol.length) {
+            alert('You have hit the last conformer');
+          } else {
+            this.confNum += 1;
+            this.showJSmol();
+            this.showConfNum();
+            this.showConfShift();
+            this.showEnergy();
+          };
+        };
+
+        NNResults.prototype.previous = function previous() {
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else if (this.confNum == 1) {
+            alert('You are at the the first conformer');
+          } else {
+            this.confNum -= 1;
+            this.showJSmol();
+            this.showConfNum();
+            this.showConfShift();
+            this.showEnergy();
+          }
+        };
+
+        NNResults.prototype.showJSmol = function showJSmol() {
+          var coordinates = this.nnResultsJsmol[this.confNum-1].replace(/&quot;/g,'"');
+          Jmol.script(this.jsmolWindow, coordinates);
+          Jmol.script(this.jsmolWindow, "select Carbon");
+          Jmol.script(this.jsmolWindow, "label %a");
+        };
+
+        NNResults.prototype.showConfNum = function showConfNum() {
+          this.confNumtxtBox.val(this.confNum);
+        }
+
+        NNResults.prototype.goConformer = function goConformer() {
+          if (this.status == 'weighted') {
+            alert('To view conformers please click on Conformers button')
+          } else {
+            this.confNum = parseInt(this.confNumtxtBox.val(), 10);
+            this.showJSmol();
+            this.showEnergy();
+            this.showConfShift();
+            this.showEnergy();
+          }
+        }
+
+        NNResults.prototype.showWeightedShift = function showWeightedShift() {
+          this.showShift(this.weightedShift);
+        }
+
+        NNResults.prototype.showConfShift = function showConfShift() {
+          this.showShift(this.confShift[this.confNum-1]);
+        }
+
+        NNResults.prototype.showWeighted = function showWeighted() {
+          var coordinates = this.nnResultsJsmol[0].replace(/&quot;/g,'"');
+          Jmol.script(this.jsmolWindow, coordinates);
+          Jmol.script(this.jsmolWindow, "select Carbon");
+          Jmol.script(this.jsmolWindow, "label %a");
+          this.confNumtxtBox.val(1);
+          this.showWeightedShift();
+          this.status = 'weighted';
+          this.showPlainEnergy();
+        }
+
+        NNResults.prototype.showConformers = function showConformers() {
+          this.status = 'conformers';
+          this.showJSmol();
+          this.showConfNum();
+          this.showConfShift();
+          this.showEnergy();
+        }
+
+        NNResults.prototype.showShift = function showShift(shifttxt) {
+          var shifts = shifttxt.split(';');
+          shifts = shifts.filter(n => n);
+
+          for (i=0; i < shifts.length; i++) {
+            shift_temp = shifts[i].split(',');
+
+            var cells = this.table.rows[i+1].cells;
+
+            cells[0].innerHTML = shift_temp[0];
+            cells[1].innerHTML = shift_temp[1];
+          }
+        }
+
+        NNResults.prototype.showEnergy = function showEnergy() {
+          var relativeE = this.relative_E[this.confNum-1].split(',').filter(n => n);
+            this.energyWindow.innerHTML = "Conformer Relative Energy (kcal/mol): "+relativeE[0]+"<br />Boltzmann Weight: "+relativeE[1]+"%";
+        };
+
+        NNResults.prototype.showPlainEnergy = function showPlainEnergy() {
+          this.energyWindow.innerHTML = "Conformer Relative Energy (kcal/mol):<br />Boltzmann Weight:"
+        };
+
+        NNResults.prototype.controlLabel = function controlLabel() {
+          if (this.labelStatus == 'On') {
+            Jmol.script(this.jsmolWindow, "Label Hide");
+            this.labelStatus = 'Off';
+          }else if (this.labelStatus == 'Off') {
+            Jmol.script(this.jsmolWindow, "Label Display");
+            this.labelStatus = 'On';
+          }
+        }
+
+        return NNResults;
+  }());
+
+  function showWeighted() {
+    nnResults.showWeighted();
+  }
+
+  function presentConformers() {
+    nnResults.showConformers();
+  }
+
+  function controlLabel() {
+    nnResults.controlLabel();
+  }
+
+</script>
+
+</html>
