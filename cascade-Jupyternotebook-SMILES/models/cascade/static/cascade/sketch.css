@@ -1,0 +1,29 @@
+.sketcher-frame {
+	margin: -2px;
+	resize: none;
+	min-width: 370px;
+	min-height: 370px;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
+
+.resizable{
+	border: none;
+	padding: 0px 0px 0px 0px;
+	border: 0px;
+	resize: both;
+	width: 500px;
+	height: 425px;
+	min-width: 370px;
+	min-height: 370px;
+	overflow: auto;
+	background-color: transparent;
+}
+
+.darkbox {
+	display: inline-block;
+	margin-left: 10px;
+	margin-right: 10px;
+	background-color: transparent;
+}
