@@ -1,0 +1,55 @@
+{% extends "cascade/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h1><span style="color: #FF5733">CASCADE</span>-<span style="color: #FF5733">C</span>hemic<span style="color: #FF5733">A</span>l <span style="color: #FF5733">S</span>hift <span style="color: #FF5733">CA</span>lculator using <span style="color: #FF5733">DE</span>ep learning</h1>
+      <p align="justify">
+        CASCADE stands for ChemicAl Shift CAlculation with DEep learning. 
+        It is a stereochemically-aware online calculator for NMR chemical shifts using a graph network approach developed at Colorado State University. 
+        Molecular input can be specified as SMILES or through the graphical interface. 
+        An automated workflow executes 3D structure embedding and MMFF conformer searching. 
+        The full ensemble of optimized conformations are passed to a trained graph neural network to predict the NMR chemical shift (in ppm) for each C atom.
+      </p>
+
+      <figure class="text-center" style="margin: 0 auto">
+        <img class="img-responsive figure-img" src="{% static "cascade/images/aboutp1.png" %}" alt="My image" style="width:60%">
+        <!--  <figcaption class="figure-caption">An elephant at sunset</figcaption> -->
+      </figure>
+
+    <br>
+      <h2>Graph Convolutional Neural Network</h2>
+      <p align="justify">
+        The graph Network considers each atom as a node in a molecular graph that permits communication between atoms - 
+        this is through edges connecting atom pairs. Each molecule is represented by a 3D molecular graph, 
+        in which each pair of atoms are connected by a distance (i.e., as opposed to solely representing bonds in a 2D molecular graph). 
+        The architecture of the network used is shown below.
+      </p>
+        <br>
+        <figure class="text-center" style="margin: 0 auto">
+          <img class="img-responsive figure-img border" src="{% static "cascade/images/aboutp2.png" %}" alt="My image">
+          <figcaption class="figure-caption">Figure 1. Graph Network used in this work</figcaption>
+        </figure>
+
+    <br>
+    <h2>Performance evaluation</h2>
+      <p align="justify">
+        We evaluated the performance of three neural network models. 
+        The first model, DFTNN, takes DFT optimized structures as input and was trained against DFT calculated shielding tensors. 
+        The MAE for the 500 testing molecules is 1.26 ppm compared to mPW1PW91/6-311+G(d,p) DFT calculations. 
+        The second model, ExpNN-dft, which was trained against experimental chemical shifts using DFT optimized structures as input through transfer learning achieves a MAE of 1.25 ppm for the 500 testing molecules compared to experimental observed chemical shifts. 
+        The eventual model, Expnn-ff, which serves as the backend predictor for this web app takes MMFF optimized structures as input and predict experimental chemical shift. 
+        The performance of the eventual model on the testing molecules is 1.43 ppm compared to the experimental 13C chemical shifts. 
+        The Scatter plot and histogram show the correlation between predicted and experimental chemical shift are shown below.
+      </p>
+      <figure class="text-center" style="margin: 0 auto">
+        <img class="img-responsive figure-img border" src="{% static "cascade/images/aboutp3.png" %}" alt="My image">
+        <figcaption class="figure-caption">Figure 2. Performance of ExpNN-ff model predicting C13 chemical shifts on the testing set of 500 molecules</figcaption>
+      </figure>
+
+      <br><br>
+      <p align='justify'>For more details, please see our paper:xxx.xxxx.xxx</p>
+      <!-- <p align='justify'>We gratefully acknowledge <a href="https://github.com/ramwin">Xiang Wang</a> for the helpful discussion and technical support.</p> -->
+
+</div>
+
+{% endblock content %}

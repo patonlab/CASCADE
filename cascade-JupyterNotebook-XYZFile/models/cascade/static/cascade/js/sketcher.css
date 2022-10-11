@@ -1,0 +1,9 @@
+.sketcher-frame {
+	margin: -2px;
+	resize: none;
+	min-width: 370px;
+	min-height: 370px;
+	height: 100%;
+	width: 100%;
+	overflow: hidden;
+}
