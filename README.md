@@ -4,7 +4,7 @@
 
 # ChemicAl Shift CAlculation with DEep learning 
 
-This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network. The production webserver can be found here: http://nova.chem.colostate.edu/cascade/
+This repositary contains all codes and data required to reproduce the work: Real-time NMR chemical shift prediction using a graph convolutional network. The production webserver can be found here: https://nova.chem.colostate.edu/cascade/predict
 
 # CASCADE: What is it?
 
@@ -63,7 +63,7 @@ The CHESIRE folder contains optimized structures and experimental C13 chemical s
 The Fig7_nprod folder contains data for the large molecules with MW > 500 found in the NMRShiftDB, which is used for figure 7 in the paper. 3D structures, experimental C13 chemical shifts, and neural network predicted chemical shifts can be found in the folder. 
 
 ## Web app
-The ExpNN-ff model which predict experimental chemical shifts using a MMFF 3D structure was developed into a free access web app (CASCADE: http://nova.chem.colostate.edu/cascade/) to fullfill the daily usage of real-time C13 chemical shift predictions that is based on 3D structures and thus can systemitically consider stereochemistry and conformers. 
+The ExpNN-ff model which predict experimental chemical shifts using a MMFF 3D structure was developed into a free access web app (CASCADE: https://nova.chem.colostate.edu/cascade/predict) to fullfill the daily usage of real-time C13 chemical shift predictions that is based on 3D structures and thus can systemitically consider stereochemistry and conformers. 
 
 
 
